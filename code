@@ -1,0 +1,53 @@
+import sys,os
+import pandas as pd
+import linecache
+import numpy as np
+import json
+import openpyxl
+#import pymysql
+root="D:\\melanoma\\2020.9.10skin melanoma-TCGA\\gdc_download_20200817_145625.347494\\transform counts" #文件路径file path
+metadata=pd.read_json("metadata.cart.2020-08-17.json")
+files= os.listdir(root)
+#print(files)
+file_path=[os.path.join(root,file)for file in files]
+counts_list=[]
+file_list=[]
+
+for x in range(472):
+    file=files[x]
+    units= pd.read_csv(file, sep="\t", dtype=str, header=None)
+    #print (units)
+    df=pd.DataFrame(np.array(units), columns=['gene_symble', str(file)])
+    file_list.append(df)
+#print(file_list)
+counts=[f.set_index("gene_symble") for f in file_list]
+#print(counts)
+counts_list.append(counts)
+num=len(file_list)
+#print(counts [0])
+matrix0=counts[0].join(counts[1])
+#print(matrix)
+#print(type(matrix))   #<class 'pandas.core.frame.DataFrame'>
+data_10=matrix0.head(10)  #打印出前10行   #data2 = frame1.tail(4)#打印出后四行
+#print(data_10)
+
+tmp = []  # 构造一个的新的临时储存列表
+tmp_matrix = []
+tmp_matrix.append(matrix0)
+i=1
+while i <= len(counts)-2:
+    i = i + 1
+    tmp.append(counts[i])
+    matrix1 = tmp_matrix[0].join(tmp[0])
+    tmp_matrix.append(matrix1)
+    del tmp[0]  # 清空tmp
+    del tmp_matrix[0]  # 剩余合并matrix
+    if IndexError:
+        pass
+#matrix_total = tmp_matrix[0]
+#print(matrix_total)
+
+wb = openpyxl.Workbook()
+sheet = wb.active
+x = pd.DataFrame(tmp_matrix[0])
+x.to_excel('matrix_472.xlsx',sheet_name='TCGA_merge')
